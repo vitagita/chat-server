@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: chatserver
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: chatserver
+      JWT_SECRET: your-secret-key-change-in-production
+      PORT: 8001
+    depends_on:
+      - postgres
+
+  profile-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.profile
+    ports:
+      - "8002:8002"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: chatserver
+      JWT_SECRET: your-secret-key-change-in-production
+      PROFILE_PORT: 8002
+    depends_on:
+      - postgres
+
+  relay-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.relay
+    ports:
+      - "8003:8003"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: chatserver
+      JWT_SECRET: your-secret-key-change-in-production
+      RELAY_PORT: 8003
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
