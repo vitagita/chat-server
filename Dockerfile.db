@@ -1,0 +1,6 @@
+FROM postgres:15
+
+# Copy migrations
+COPY migrations/*.sql /docker-entrypoint-initdb.d/
+
+# Make migrations executable in order
