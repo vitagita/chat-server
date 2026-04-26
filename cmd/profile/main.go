@@ -37,6 +37,7 @@ func main() {
 		authorized.GET("/:userId", profileHandler.GetProfile)
 		authorized.PUT("/:userId", profileHandler.UpdateProfile)
 		authorized.GET("/search", profileHandler.SearchProfiles)
+		authorized.GET("/phone/:phone", profileHandler.SearchByPhone)
 	}
 
 	channels := r.Group("/channels")

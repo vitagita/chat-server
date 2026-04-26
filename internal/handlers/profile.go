@@ -156,3 +156,52 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, results)
 }
+
+func (h *ProfileHandler) SearchByPhone(c *gin.Context) {
+	phone := c.Param("phone")
+	if phone == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "phone required"})
+		return
+	}
+
+	ctx := context.Background()
+	
+	rows, err := database.Pool.Query(ctx, `
+		SELECT u.id, u.username, p.display_name, p.avatar_url, p.status, COALESCE(p.phone, ''), COALESCE(u.phone, '')
+		FROM users u
+		LEFT JOIN profiles p ON u.id = p.user_id
+		WHERE p.phone = $1 OR u.phone = $1
+	`, phone)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "search failed"})
+		return
+	}
+	defer rows.Close()
+
+	var results []gin.H
+	for rows.Next() {
+		var userID uuid.UUID
+		var username, displayName, avatarURL, status, phone, userPhone *string
+
+		if err := rows.Scan(&userID, &username, &displayName, &avatarURL, &status, &phone, &userPhone); err != nil {
+			continue
+		}
+
+		phoneVal := *phone
+		if phoneVal == "" && userPhone != nil {
+			phoneVal = *userPhone
+		}
+
+		results = append(results, gin.H{
+			"user_id":      userID,
+			"username":    username,
+			"display_name": displayName,
+			"avatar_url":  avatarURL,
+			"status":      status,
+			"phone":      phoneVal,
+		})
+	}
+
+	c.JSON(http.StatusOK, results)
+}
