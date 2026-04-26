@@ -157,7 +157,7 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 		})
 	}
 
-	fmt.Printf("DEBUG: SearchProfiles found %d results - %v\n", len(results), results))
+	fmt.Printf("DEBUG: SearchProfiles found %d results: %v\n", len(results), results)
 	c.JSON(http.StatusOK, results)
 }
 
