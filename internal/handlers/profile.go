@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"chat-server/internal/database"
-	"chat-server/internal/models"
 )
 
 type ProfileHandler struct{}
@@ -116,6 +116,7 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 	ctx := context.Background()
 	
 	searchPattern := "%" + query + "%"
+	fmt.Printf("DEBUG: SearchProfiles query=%s pattern=%s\n", query, searchPattern)
 	
 	rows, err := database.Pool.Query(ctx, `
 		SELECT u.id, u.username, p.display_name, p.avatar_url, p.status, COALESCE(p.phone, ''), COALESCE(u.phone, '')
@@ -155,6 +156,7 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 		})
 	}
 
+	fmt.Printf("DEBUG: SearchProfiles found %d results\n", len(results))
 	c.JSON(http.StatusOK, results)
 }
 
