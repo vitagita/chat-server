@@ -157,10 +157,6 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 
 	c.JSON(http.StatusOK, results)
 }
-	}
-
-	c.JSON(http.StatusOK, results)
-}
 
 func (h *ProfileHandler) SearchByPhone(c *gin.Context) {
 	phone := c.Param("phone")
