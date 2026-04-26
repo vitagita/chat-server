@@ -117,8 +117,6 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 	
 	searchPattern := "%" + query + "%"
 	
-	fmt.Printf("DEBUG SearchProfiles: query=%s pattern=%s\n", query, searchPattern)
-	
 	rows, err := database.Pool.Query(ctx, `
 		SELECT u.id, u.username, p.display_name, p.avatar_url, p.status, COALESCE(p.phone, ''), COALESCE(u.phone, '')
 		FROM users u
@@ -127,23 +125,18 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 		LIMIT 20
 	`, searchPattern)
 
-	fmt.Printf("DEBUG SearchProfiles: err=%v\n", err)
-	
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "search failed"})
 		return
 	}
 	defer rows.Close()
 
-	var count int
 	var results []gin.H
 	for rows.Next() {
-		count++
 		var userID uuid.UUID
 		var username, displayName, avatarURL, status, phone, userPhone *string
 
 		if err := rows.Scan(&userID, &username, &displayName, &avatarURL, &status, &phone, &userPhone); err != nil {
-			fmt.Printf("DEBUG Scan: err=%v\n", err)
 			continue
 		}
 
@@ -161,8 +154,9 @@ func (h *ProfileHandler) SearchProfiles(c *gin.Context) {
 			"phone":      phoneVal,
 		})
 	}
-	
-	fmt.Printf("DEBUG SearchProfiles: found %d results\n", count)
+
+	c.JSON(http.StatusOK, results)
+}
 	}
 
 	c.JSON(http.StatusOK, results)
@@ -177,8 +171,6 @@ func (h *ProfileHandler) SearchByPhone(c *gin.Context) {
 
 	ctx := context.Background()
 	
-	fmt.Printf("DEBUG SearchByPhone: phone=%s\n", phone)
-	
 	rows, err := database.Pool.Query(ctx, `
 		SELECT u.id, u.username, p.display_name, p.avatar_url, p.status, COALESCE(p.phone, ''), COALESCE(u.phone, '')
 		FROM users u
@@ -186,18 +178,14 @@ func (h *ProfileHandler) SearchByPhone(c *gin.Context) {
 		WHERE p.phone = $1 OR u.phone = $1
 	`, phone)
 
-	fmt.Printf("DEBUG SearchByPhone: err=%v\n", err)
-	
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "search failed"})
 		return
 	}
 	defer rows.Close()
 
-	var count int
 	var results []gin.H
 	for rows.Next() {
-		count++
 		var userID uuid.UUID
 		var username, displayName, avatarURL, status, phone, userPhone *string
 
@@ -219,8 +207,6 @@ func (h *ProfileHandler) SearchByPhone(c *gin.Context) {
 			"phone":      phoneVal,
 		})
 	}
-	
-	fmt.Printf("DEBUG SearchByPhone: found %d results\n", count)
 
 	c.JSON(http.StatusOK, results)
 }

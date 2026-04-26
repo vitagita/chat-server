@@ -31,13 +31,17 @@ func main() {
 	profileHandler := handlers.NewProfileHandler()
 	channelHandler := handlers.NewChannelHandler()
 
+	// Public endpoints (no auth required)
+	r.GET("/profiles/search", profileHandler.SearchProfiles)
+	r.GET("/profiles/phone/:phone", profileHandler.SearchByPhone)
+	r.GET("/channels/search", channelHandler.SearchChannels)
+
+	// Protected endpoints
 	authorized := r.Group("/profiles")
 	authorized.Use(middleware.JWTAuth(cfg.JWTSecret))
 	{
 		authorized.GET("/:userId", profileHandler.GetProfile)
 		authorized.PUT("/:userId", profileHandler.UpdateProfile)
-		authorized.GET("/search", profileHandler.SearchProfiles)
-		authorized.GET("/phone/:phone", profileHandler.SearchByPhone)
 	}
 
 	channels := r.Group("/channels")
@@ -45,7 +49,6 @@ func main() {
 	{
 		channels.POST("", channelHandler.CreateChannel)
 		channels.GET("", channelHandler.GetChannels)
-		channels.GET("/search", channelHandler.SearchChannels)
 		channels.GET("/:channelId", channelHandler.GetChannel)
 		channels.POST("/:channelId/join", channelHandler.JoinChannel)
 		channels.POST("/:channelId/leave", channelHandler.LeaveChannel)
