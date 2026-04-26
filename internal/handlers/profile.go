@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"chat-server/internal/database"
+	"chat-server/internal/models"
 )
 
 type ProfileHandler struct{}
