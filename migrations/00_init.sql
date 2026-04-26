@@ -1,7 +1,5 @@
 -- Combined migration for first run (001 + 002 + phone columns)
-
--- Create database
-CREATE DATABASE chatserver;
+-- NOTE: Database 'chatserver' is created by POSTGRES_DB env variable
 
 \c chatserver;
 

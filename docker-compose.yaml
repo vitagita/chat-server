@@ -1,3 +1,20 @@
+version: '3.8'
+
+x.build-auth: &build-auth
+  build:
+    context: .
+    dockerfile: Dockerfile.auth
+
+x.build-profile: &build-profile
+  build:
+    context: .
+    dockerfile: Dockerfile.profile
+
+x.build-relay: &build-relay
+  build:
+    context: .
+    dockerfile: Dockerfile.relay
+
 services:
   postgres:
     image: postgres:15
@@ -17,9 +34,8 @@ services:
       retries: 5
 
   auth-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.auth
+    <<: *build-auth
+    # image: yourregistry/chat-server-auth:latest  # Uncomment after pushing
     ports:
       - "8001:8001"
     environment:
@@ -35,9 +51,8 @@ services:
         condition: service_healthy
 
   profile-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.profile
+    <<: *build-profile
+    # image: yourregistry/chat-server-profile:latest
     ports:
       - "8002:8002"
     environment:
@@ -53,9 +68,8 @@ services:
         condition: service_healthy
 
   relay-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.relay
+    <<: *build-relay
+    # image: yourregistry/chat-server-relay:latest
     ports:
       - "8003:8003"
     environment:
